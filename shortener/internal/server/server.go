@@ -21,14 +21,17 @@ func New() (*Server, error){
 	}
 
 	connstr := os.Getenv("DSN")
-	db, _ := db.New(connstr)
-	
-	server := &Server {
-		api: api.New(db),
-		db: db,
+	db, err := db.New(connstr)
+	if err != nil {
+		return nil, err
 	}
 
-	return server, nil
+	s := &Server{}
+
+	s.db = db
+	s.api = api.New(s.db)
+
+	return s, nil
 }
 
 func (s *Server) Run(){

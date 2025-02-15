@@ -20,7 +20,6 @@ func New(db *db.Db) *API{
 	}
 
 	api.Endpoints()
-
 	return api
 }
 
@@ -30,5 +29,11 @@ func (api *API) Run(addr string) error {
 }
 
 func (api *API) Endpoints(){
+	api.router.HandleFunc("/hello", Create()).Methods(http.MethodGet)
+}
 
+func Create() http.HandlerFunc{
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello, man!"))
+	})
 }
