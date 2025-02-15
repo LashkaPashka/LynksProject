@@ -10,13 +10,18 @@ type Db struct {
 	pool *pgxpool.Pool
 }
 
-func New(connstr string) (*Db, error) {
-	pool, err := pgxpool.New(context.Background(), connstr)
+var ctx = context.Background()
 
+func New(connstr string) (*Db, error) {
+	pool, err := pgxpool.New(ctx, connstr)
 	if err != nil {
 		return nil, err
 	}
 	
+	if err = pool.Ping(ctx); err != nil {
+		return nil, err
+	}
+
 	return &Db{
 		pool: pool,
 	}, nil
