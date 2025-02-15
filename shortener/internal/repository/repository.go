@@ -10,6 +10,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+type myString string
+const (
+	Hash myString = "hash"
+)
 
 type LinkRepository struct {
 	conf *configs.Config
@@ -42,36 +46,33 @@ func NewLinkRepository() *LinkRepository{
 }
 
 
-func (repo *LinkRepository) GetLinks(ctx context.Context) ([]model.Links, error) {
-	rows, err := repo.db.Query(ctx, `SELECT id, url, hash FROM links`)
+func (repo *LinkRepository) GetLinks(ctx context.Context) (string, error) {
+	hash := ctx.Value(Hash)
+	rows, err := repo.db.Query(ctx, `SELECT url FROM links WHERE hash = $1`, hash.(string))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	var links []model.Links
-	for rows.Next() {
-		var l model.Links
-		err := rows.Scan(
-			&l.ID,
-			&l.Url,
-			&l.ShortUrl,
-		)
-		if err != nil {
-			return nil, err
+	var url string
+	
+	for rows.Next(){
+		err = rows.Scan(
+			&url,
+		 )
+
+		 if err != nil {
+			return "", err
 		}
-
-		links = append(links, l)
 	}
-
 	if err := rows.Err(); err != nil {
-		return nil, err 
+		return "", err 
 	}
-
-	return links, nil
+	
+	return url, nil
 }
 
 
-func (repo *LinkRepository) CreateLinks(ctx context.Context, links []model.Links) error {
+func (repo *LinkRepository) CreateLinks(ctx context.Context, link *model.Links) error {
 	tx, err := repo.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -80,11 +81,29 @@ func (repo *LinkRepository) CreateLinks(ctx context.Context, links []model.Links
 
 	var batch = &pgx.Batch{}
 	
+	batch.Queue(`INSERT INTO links(url, hash) VALUES($1, $2)`, link.Url, link.Hash)
+	
+	res := tx.SendBatch(ctx, batch)
+	if err := res.Close(); err != nil {
+		return err
+	}
 
-	for _, link := range links {
-		batch.Queue(`INSERT INTO links(url, hash) VALUES($1, $2)`, link.Url, link.ShortUrl)
-	} 
+	return tx.Commit(ctx)
+}
 
+func (repo *LinkRepository) DeleteLinks(ctx context.Context) error {
+	hash := ctx.Value(Hash)
+	
+	tx, err := repo.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var batch = &pgx.Batch{}
+	
+	batch.Queue(`DELETE FROM links WHERE hash = $1`, hash.(string))
+	
 	res := tx.SendBatch(ctx, batch)
 	if err := res.Close(); err != nil {
 		return err
