@@ -1,7 +1,8 @@
 package main
 
-import "Lynks/shortener/internal/server"
-
+import (
+	"Lynks/shortener/internal/server"
+)
 
 func main(){
 	server, err := server.New()
@@ -9,5 +10,7 @@ func main(){
 		panic(err)
 	}
 
+	// logger
+	server.NewLogger()
 	server.Run()
 }
