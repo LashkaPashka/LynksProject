@@ -11,23 +11,25 @@ const (
 	envProd = "Prod"
 )
 
-func SetupLogger(env string) *slog.Logger {
-	var log *slog.Logger
+var (
+	Log *slog.Logger
+)
 
+func SetupLogger(env string) *slog.Logger {
 	switch env {
 		case envLocal:
-			log = slog.New(
+			Log = slog.New(
 				slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 			)
 		case envDev:
-			log = slog.New(
+			Log = slog.New(
 				slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 			)
 		case envProd:
-			log = slog.New(
+			Log = slog.New(
 				slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 			)
 	}
 
-	return log
+	return Log
 }

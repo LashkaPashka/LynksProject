@@ -1,6 +1,14 @@
-package links
+package model
 
-import "math/rand"
+import (
+	"context"
+	"math/rand"
+)
+type myString string
+const (
+	HostAPI myString = "hostAPI"
+)
+
 
 type Links struct {
 	ID int
@@ -8,19 +16,19 @@ type Links struct {
 	ShortUrl string
 }
 
-func NewLink(url string) *Links{
+func NewLink(ctx context.Context, url string) *Links{
 	link := &Links{
 		Url: url,
 	}
-	link.Hash()
+	link.Hash(ctx)
 
 	return link
 }
 
 var letterRandom = []rune("abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ")
 
-func (l *Links) Hash() {
-	l.ShortUrl = GenerateHash(10)
+func (l *Links) Hash(ctx context.Context) {
+	l.ShortUrl = ctx.Value(HostAPI).(string) + GenerateHash(10)
 }
 
 func GenerateHash(n int) string {
