@@ -26,8 +26,7 @@ func NewLinkRepository() *LinkRepository{
 		logger.Log.Error(
 			"Not found env",
 			slog.String("Msg", err.Error()),
-		)
-	}
+		) 	}
 
 	repo := LinkRepository{
 		conf: conf,
@@ -45,25 +44,24 @@ func NewLinkRepository() *LinkRepository{
 	return &repo
 }
 
-
 func (repo *LinkRepository) GetLinks(ctx context.Context) (string, error) {
 	hash := ctx.Value(Hash)
 	rows, err := repo.db.Query(ctx, `SELECT url FROM links WHERE hash = $1`, hash.(string))
 	if err != nil {
 		return "", err
 	}
-
+	
 	var url string
 	
 	for rows.Next(){
 		err = rows.Scan(
 			&url,
 		 )
-
 		 if err != nil {
 			return "", err
 		}
 	}
+
 	if err := rows.Err(); err != nil {
 		return "", err 
 	}

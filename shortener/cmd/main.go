@@ -12,5 +12,6 @@ func main(){
 
 	// logger
 	server.NewLogger()
+	// Server's running
 	server.Run()
 }

@@ -76,7 +76,7 @@ func GoTo() http.HandlerFunc {
 		if err != nil {
 			logger.Log.Error(
 				"Failed decoding of the response",
-				slog.String("Msg", url),
+				slog.String("Msg", err.Error()),
 			)
 		}
 		
