@@ -7,7 +7,7 @@ import (
 )
 
 type Configs struct {
-	env string
+	Env string
 	DSN DSNConfig
 }
 
@@ -21,7 +21,7 @@ func LoadConfig() (*Configs, error) {
 	}
 	
 	return &Configs{
-		env: os.Getenv("ENV"),
+		Env: os.Getenv("ENV"),
 		DSN: DSNConfig{
 			DSN: os.Getenv("DSN"),
 		},

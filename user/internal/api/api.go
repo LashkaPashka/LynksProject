@@ -27,7 +27,13 @@ func (api *API) Run(addr string) error {
 }
 
 func (api *API) EndPoints() {
-	api.router.HandleFunc("/register", nil).Methods(http.MethodPost)
+	api.router.HandleFunc("/register", register()).Methods(http.MethodPost)
 	api.router.HandleFunc("/login", nil).Methods(http.MethodPost)
 	api.router.HandleFunc("/logout", nil).Methods(http.MethodPost)
+}
+
+func register() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello, man!"))
+	})
 }
