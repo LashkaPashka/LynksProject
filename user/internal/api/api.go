@@ -2,6 +2,10 @@ package api
 
 import (
 	"Lynks/user/internal/db"
+	"Lynks/user/internal/payload"
+	"Lynks/user/internal/repository"
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -34,6 +38,17 @@ func (api *API) EndPoints() {
 
 func register() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, man!"))
+		var user payload.UserRequest
+
+		repo := repository.NewUserRepository()
+
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			log.Fatal(err)
+		}
+		
+		if err := repo.InsertDocs(repo.MongoClient, user.Email, user.Password, user.Name); err != nil {
+			log.Fatal(err)
+		}
+
 	})
 }
