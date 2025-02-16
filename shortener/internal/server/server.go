@@ -28,9 +28,10 @@ func New() (*Server, error){
 	s := &Server{}
 
 	s.db = db
-	s.api = api.New(s.db)
 	s.configs = configs
-
+	s.api = api.New(s.db, s.configs)	
+	
+	
 	return s, nil
 }
 

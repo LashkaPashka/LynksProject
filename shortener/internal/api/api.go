@@ -1,11 +1,13 @@
 package api
 
 import (
+	"Lynks/shortener/configs"
 	"Lynks/shortener/internal/db"
 	"Lynks/shortener/internal/model"
 	"Lynks/shortener/internal/payload"
 	"Lynks/shortener/internal/repository"
 	"Lynks/shortener/pkg/logger"
+	"Lynks/shortener/pkg/middleware"
 	"Lynks/shortener/pkg/res"
 	"context"
 	"encoding/json"
@@ -18,13 +20,15 @@ import (
 type API struct {
 	router *mux.Router
 	db *db.Db
+	conf *configs.Config
 }
 
 
-func New(db *db.Db) *API{
+func New(db *db.Db, conf *configs.Config) *API{
 	api := &API{
 		router: mux.NewRouter(),
 		db: db,
+		conf: conf,
 	}
 
 	api.Endpoints()
@@ -37,9 +41,9 @@ func (api *API) Run(addr string) error {
 }
 
 func (api *API) Endpoints(){
-	api.router.HandleFunc("/Create", Create()).Methods(http.MethodPost)
+	api.router.Handle("/Create", middleware.IsAuthed(Create(), api.conf)).Methods(http.MethodPost)
 	api.router.HandleFunc("/{hash}", GoTo()).Methods(http.MethodGet)
-	api.router.HandleFunc("/{hash}", Delete()).Methods(http.MethodDelete)
+	api.router.Handle("/{hash}", middleware.IsAuthed(Delete(), api.conf)).Methods(http.MethodDelete)
 }
 
 func Create() http.HandlerFunc {
@@ -55,7 +59,6 @@ func Create() http.HandlerFunc {
 		}
 		
 		newLink := model.NewLink(link.Destination)
-		
 		repo.CreateLinks(r.Context(), newLink)
 		
 		res.Encode(w, &payload.LinkResponse{

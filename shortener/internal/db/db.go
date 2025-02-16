@@ -17,7 +17,8 @@ func New(connstr string) (*Db, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	defer pool.Close()
+	
 	if err = pool.Ping(ctx); err != nil {
 		return nil, err
 	}

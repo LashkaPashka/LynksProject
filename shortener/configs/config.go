@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Env string
 	Db DSNconfig
+	Secret string
 }
 
 type DSNconfig struct {
@@ -26,5 +27,6 @@ func LoadConfig() (*Config, error){
 		Db: DSNconfig{
 			DSN: os.Getenv("DSN"),
 		},
+		Secret: os.Getenv("SECRET"),
 	}, nil
 }
