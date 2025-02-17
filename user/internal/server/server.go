@@ -24,7 +24,6 @@ func New() (*Server, error) {
 	// Settings Server
 	server := &Server{}
 	
-
 	mongoDb, err := db.New(conf.DSN.DSN)
 	if err != nil {
 		return nil, err
@@ -41,16 +40,17 @@ func (s *Server) Run() {
 	s.api.Run(":8082")
 }
 
-func (s *Server) NewLogger(){
+func (s *Server) NewLogger() {
 	log := logger.SetupLogger(s.conf.Env)
 
-	log.Info("Starting application",
+	log.Info("Starting application USER",
 			slog.String("Addr", "127.0.0.1"),
 			slog.String("Port", "8082"),
 			slog.String("Env", s.conf.Env),
 		)
 	
 	log.Info("Db's running",
-			slog.String("Port", "5432"),
+			slog.String("Port", "27017"),
+			slog.String("DB_Name", "MongoDB"),
 		)
 }

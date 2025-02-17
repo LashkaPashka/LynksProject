@@ -82,7 +82,9 @@ func GoTo() http.HandlerFunc {
 				slog.String("Msg", err.Error()),
 			)
 		}
-		
+
+		repo.Kafka.Producer(url)
+
 		http.Redirect(w, r, url, http.StatusOK)
 	})
 }

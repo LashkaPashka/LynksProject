@@ -50,5 +50,6 @@ func (s *Server) NewLogger(){
 	
 	log.Info("Db's running",
 			slog.String("Port", "5432"),
+			slog.String("DB_NAME", "Postgres"),
 		)
 }

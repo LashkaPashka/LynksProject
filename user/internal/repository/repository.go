@@ -49,7 +49,7 @@ func (repo *UserRepository) InsertDocs(c *mongo.Client, email, password, name st
 	// Verifying the user's existence
 	_, isExist, _ := repo.GetByEmail(c, email)
 	if !isExist {
-		return errors.New("Пользователь существует!")
+		return errors.New("пользователь существует")
 	}
 
 	// Generate hashed_password

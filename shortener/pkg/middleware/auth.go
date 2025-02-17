@@ -36,5 +36,4 @@ func IsAuthed(next http.Handler, conf *configs.Config) http.Handler {
 		req := r.WithContext(ctx)
 		next.ServeHTTP(w, req)
 	})
-
 }

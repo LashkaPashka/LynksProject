@@ -4,9 +4,10 @@ import (
 	"Lynks/user/internal/db"
 	"Lynks/user/internal/payload"
 	"Lynks/user/internal/repository"
+	"Lynks/user/pkg/logger"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -44,12 +45,19 @@ func Register() http.HandlerFunc {
 		repo := repository.NewUserRepository()
 
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-			log.Fatal(err)
+			logger.Log.Error(
+				"Неудачное декодирование",
+			)
 			return
 		}
 		
 		if err := repo.InsertDocs(repo.MongoClient, user.Email, user.Password, user.Name); err != nil {
-			log.Fatal(err)
+			logger.Log.Error(
+				"Неврзможно добавить пользователя в БД",
+				slog.String("email", user.Email),
+				slog.String("password", user.Password),
+				slog.String("name", user.Name),
+			)
 			return
 		}
 	})
@@ -61,13 +69,19 @@ func Login() http.HandlerFunc {
 		repo := repository.NewUserRepository()
 
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-			log.Fatal(err)
+			logger.Log.Error(
+				"Неудачаное декодирование",
+			)
 			return
 		}
 		
 		existUser, _, _ := repo.GetByEmail(repo.MongoClient, user.Email)
 		if err := bcrypt.CompareHashAndPassword([]byte(existUser.Password), []byte(user.Password)); err != nil {
 			http.Error(w, "Пользователь не существует", http.StatusConflict)
+			logger.Log.Error(
+				"Не удалось декодировать пароль",
+				slog.String(user.Email, "Пароль не соответствует"),
+			)
 			return
 		}
 	

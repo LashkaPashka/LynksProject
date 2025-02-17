@@ -4,6 +4,7 @@ import (
 	"Lynks/shortener/configs"
 	"Lynks/shortener/internal/model"
 	"Lynks/shortener/pkg/logger"
+	"Lynks/shortener/pkg/queue"
 	"context"
 	"log/slog"
 
@@ -18,6 +19,7 @@ const (
 type LinkRepository struct {
 	conf *configs.Config
 	db *pgxpool.Pool
+	Kafka *kafka.Client
 }
 
 func NewLinkRepository() *LinkRepository{
@@ -27,9 +29,15 @@ func NewLinkRepository() *LinkRepository{
 			"Not found env",
 			slog.String("Msg", err.Error()),
 		) 	}
+	
+	kafka, err := kafka.New([]string{"localhost:29092"}, "test-topic")
+	if err != nil {
+		logger.Log.Error("Неудачное подключание к kafka")
+	}
 
 	repo := LinkRepository{
 		conf: conf,
+		Kafka: kafka,
 	}
 	
 	db, err := pgxpool.New(context.Background(), conf.Db.DSN)
@@ -41,6 +49,7 @@ func NewLinkRepository() *LinkRepository{
 	}
 
 	repo.db = db
+	
 	return &repo
 }
 
