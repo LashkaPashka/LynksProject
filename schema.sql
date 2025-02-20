@@ -10,6 +10,6 @@ CREATE TABLE links (
 CREATE TABLE stats (
     id SERIAL PRIMARY KEY, -- первичный ключ
     url VARCHAR(20) NOT NULL DEFAULT '',
-    click INTEGER NOT NULL DEFAULT '',
-    average_length INTEGER DEFAULT CURRENT_TIMESTAMP
+    click INTEGER NOT NULL DEFAULT 0,
+    average_length INTEGER DEFAULT 0
 )
