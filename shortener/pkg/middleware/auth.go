@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"Lynks/shortener/configs"
-	"Lynks/shortener/pkg/jwt"
+	"ShorteNer/configs"
+	"ShorteNer/pkg/jwt"
 	"context"
 	"net/http"
 	"strings"

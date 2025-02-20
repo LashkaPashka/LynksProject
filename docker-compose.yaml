@@ -1,4 +1,19 @@
 services:
+  nginx:
+    image: nginx
+    container_name: ${CONTAINER_NAME}_nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - nginx_net
+    depends_on:
+      - shortener
+      - user
+      - stats
+      - memcache
+
   postgres:
     image: postgres:16.6
     restart: always
@@ -11,6 +26,8 @@ services:
        PGDATA: ${PGDATA}
     volumes:
       - postgres_data:${PGDATA}
+    networks:
+      - postgres_net
   
   mongo:
     image: mongo
@@ -19,8 +36,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    ports:
-      - 27017:27017
     volumes:
       - mongo_data:${MDATA}
     networks:
@@ -51,8 +66,6 @@ services:
        MYSQL_DATABASE: ${MYSQL_DATABASE}
        MYSQL_USER: ${MYSQL_USER}
        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - 3306:3306
     volumes:
       - mysql_data:${MYSQL_DATA}
     networks:
@@ -77,15 +90,13 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - 22181:2181
+    networks:
+      - kafka_net
   
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
-    ports:
-      - 29092:29092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -93,14 +104,101 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - kafka_net
+
+  redis:
+    image: redis
+    container_name: ${CONTAINER_NAME}_redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+       REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--requirepass", "mysecretpassword"]
+    networks:
+      - redis_net
+
+  shortener:
+    build: 
+      context: .
+      dockerfile: ./shortener/Dockerfile
+    image: shortener_img
+    container_name: shortener_api
+    networks:
+      - redis_net
+      - postgres_net
+      - kafka_net
+      - api_net
+      - nginx_net
+    depends_on:
+      - postgres
+      - redis
+
+  user:
+    build: 
+      context: .
+      dockerfile: ./user/Dockerfile
+    image: user_img
+    container_name: user_api
+    networks:
+      - mongo_net
+      - api_net
+      - nginx_net
+    depends_on:
+      - mongo
+      
+
+  stats:
+    build: 
+      context: .
+      dockerfile: ./stats/Dockerfile
+    image: stats_img
+    container_name: stats_api
+    networks:
+      - redis_net
+      - mysql_net
+      - kafka_net
+      - api_net
+      - nginx_net
+    depends_on:
+      - mysql
+      - kafka
+      - redis
+
+  memcache:
+    build: 
+      context: .
+      dockerfile: ./memcache/Dockerfile
+    image: mem_img
+    container_name: mem_api
+    networks:
+      - redis_net
+      - api_net
+      - nginx_net
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:
   mongo_data:
   mysql_data:
+  redis_data:
 
 networks:
+    postgres_net:
+      driver: bridge
+    kafka_net:
+      driver: bridge
     mongo_net:
       driver: bridge
     mysql_net:
+      driver: bridge
+    redis_net:
+      driver: bridge
+    api_net:
+      driver: bridge
+    nginx_net:
       driver: bridge

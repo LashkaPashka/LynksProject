@@ -1,10 +1,10 @@
 package server
 
 import (
-	"Lynks/user/configs"
-	"Lynks/user/internal/api"
-	"Lynks/user/internal/db"
-	"Lynks/user/pkg/logger"
+	"User/configs"
+	"User/internal/api"
+	"User/internal/db"
+	"User/pkg/logger"
 	"log/slog"
 )
 

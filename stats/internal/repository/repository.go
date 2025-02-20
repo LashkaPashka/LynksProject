@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"Lynks/stats/internal/model"
+	"Stats/internal/model"
 	"context"
 	"database/sql"
 	"fmt"
 
-	"Lynks/stats/configs"
+	"Stats/configs"
 
 	_ "github.com/go-sql-driver/mysql"
 )

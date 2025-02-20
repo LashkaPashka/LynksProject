@@ -1,18 +1,17 @@
 package main
 
 import (
-	"Stats/internal/server"
+	"memCache/internal/server"
+	"fmt"
 )
 
-func main(){
+func main() {
 	server, err := server.New()
 	if err != nil {
 		panic(err)
 	}
 
-	server.NewLogger()
-	server.KafkaConsumer()
-	
-
+	fmt.Println("Running redis server on port 8084")
 	server.Run()
+
 }

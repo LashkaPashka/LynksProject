@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Lynks/shortener/internal/server"
+	"ShorteNer/internal/server"
 )
 
 func main(){

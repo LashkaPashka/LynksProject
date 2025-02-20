@@ -1,14 +1,15 @@
 package api
 
 import (
-	"Lynks/shortener/configs"
-	"Lynks/shortener/internal/db"
-	"Lynks/shortener/internal/model"
-	"Lynks/shortener/internal/payload"
-	"Lynks/shortener/internal/repository"
-	"Lynks/shortener/pkg/logger"
-	"Lynks/shortener/pkg/middleware"
-	"Lynks/shortener/pkg/res"
+	"ShorteNer/configs"
+	"ShorteNer/internal/client"
+	"ShorteNer/internal/db"
+	"ShorteNer/internal/model"
+	"ShorteNer/internal/payload"
+	"ShorteNer/internal/repository"
+	"ShorteNer/pkg/logger"
+	"ShorteNer/pkg/middleware"
+	"ShorteNer/pkg/res"
 	"context"
 	"encoding/json"
 	"log/slog"
@@ -75,15 +76,25 @@ func GoTo() http.HandlerFunc {
 
 		ctx := context.WithValue(r.Context(), repository.Hash, hash)
 		
-		url, err := repo.GetLinks(ctx)
+		// Get url from Cache
+		var url string
+		mp, err := client.GetCache(hash)
 		if err != nil {
-			logger.Log.Error(
-				"Failed decoding of the response",
-				slog.String("Msg", err.Error()),
-			)
+			url, err = repo.GetLinks(ctx)
+			if err != nil {
+				logger.Log.Error(
+					"Failed decoding of the response",
+					slog.String("Msg", err.Error()),
+				)
+			}
+		} else {
+			url = mp["url"]
 		}
 
-		repo.Kafka.Producer(url)
+		repo.Kafka.Producer(map[string]string{
+			"url": url,
+			"hash": hash,
+		})
 
 		http.Redirect(w, r, url, http.StatusOK)
 	})

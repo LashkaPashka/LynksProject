@@ -1,10 +1,10 @@
 package api
 
 import (
-	"Lynks/user/internal/db"
-	"Lynks/user/internal/payload"
-	"Lynks/user/internal/repository"
-	"Lynks/user/pkg/logger"
+	"User/internal/db"
+	"User/internal/payload"
+	"User/internal/repository"
+	"User/pkg/logger"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -48,18 +48,22 @@ func Register() http.HandlerFunc {
 			logger.Log.Error(
 				"Неудачное декодирование",
 			)
+			w.WriteHeader(http.StatusConflict)
 			return
 		}
 		
 		if err := repo.InsertDocs(repo.MongoClient, user.Email, user.Password, user.Name); err != nil {
 			logger.Log.Error(
-				"Неврзможно добавить пользователя в БД",
+				"Невозможно добавить пользователя в БД",
 				slog.String("email", user.Email),
 				slog.String("password", user.Password),
 				slog.String("name", user.Name),
 			)
+			w.WriteHeader(http.StatusConflict)
 			return
 		}
+
+		w.Write([]byte("Пользователь добавлен"))
 	})
 }
 

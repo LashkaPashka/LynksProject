@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Lynks/user/internal/server"
+	"User/internal/server"
 )
 
 func main() {

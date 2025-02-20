@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"Lynks/user/configs"
-	"Lynks/user/internal/model"
-	"Lynks/user/pkg/jwt"
+	"User/configs"
+	"User/internal/model"
+	"User/pkg/jwt"
 	"context"
 	"errors"
 	"log"

@@ -1,11 +1,10 @@
 package server
 
 import (
-	"Lynks/stats/configs"
-	"Lynks/stats/internal/db"
-	"Lynks/stats/internal/repository"
-	"Lynks/stats/pkg/logger"
-	"Lynks/stats/pkg/queue"
+	"Stats/configs"
+	"Stats/internal/db"
+	"Stats/pkg/logger"
+	"Stats/pkg/queue"
 	"log/slog"
 	"net/http"
 )
@@ -14,7 +13,6 @@ type Server struct {
 	db *db.MysqlDb
 	Conf *configs.Config
 	kafka *kafka.Client
-	repo *repository.StatsRepository
 }
 
 func New() (*Server, error) {
@@ -27,7 +25,7 @@ func New() (*Server, error) {
 		Conf: conf,	
 	}
 	
-	kafka, err := kafka.New([]string{"localhost:29092"}, "test-topic", "test-consumer-group", server.Conf)
+	kafka, err := kafka.New([]string{"kafka"}, "test-topic", "test-consumer-group", server.Conf)
 	if err != nil {
 		return nil, err
 	}

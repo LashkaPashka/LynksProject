@@ -1,9 +1,11 @@
 package kafka
 
 import (
-	"Lynks/stats/configs"
-	"Lynks/stats/internal/repository"
-	"Lynks/stats/internal/service"
+	"Stats/configs"
+	"Stats/internal/repository"
+	"fmt"
+
+	"Stats/internal/service"
 	"context"
 	"errors"
 	"log"
@@ -16,8 +18,6 @@ type Client struct {
 	service *service.StatsService
 	repo *repository.StatsRepository
 }
-
-var ctx = context.Background()
 
 func New(brokers []string, topic, groupID string, conf *configs.Config) (*Client, error) {
 	if len(brokers) == 0 || brokers[0] == "" || topic == "" || groupID == "" {
@@ -42,18 +42,28 @@ func New(brokers []string, topic, groupID string, conf *configs.Config) (*Client
 
 
 func (c *Client) Consumer() {
-	
 	for {
-		msg, err := c.Reader.FetchMessage(ctx)
+		var mp = make(map[string]string)
+		var msg kafka.Message
+		var err error
+
+		for i := 0; i < 2; i++ {
+			msg, err = c.Reader.FetchMessage(context.Background())
+			if err != nil {
+				fmt.Printf("Consumer error: %v (%v)\n", err, msg)
+				continue
+			}
+			mp[string(msg.Key)] = string(msg.Value)
+		}
+		
+		err = c.Reader.CommitMessages(context.Background(), msg)
 		if err != nil {
 			log.Println(err)
 		}
 		
-		c.service.CreateStat(string(msg.Value))
-
-		err = c.Reader.CommitMessages(ctx, msg)
-		if err != nil {
-			log.Println(err)
-		}
+		c.service.CreateStat(mp)
 	}
 }
+
+
+

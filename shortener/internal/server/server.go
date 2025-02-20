@@ -1,10 +1,10 @@
 package server
 
 import (
-	"Lynks/shortener/configs"
-	"Lynks/shortener/internal/api"
-	"Lynks/shortener/internal/db"
-	"Lynks/shortener/pkg/logger"
+	"ShorteNer/configs"
+	"ShorteNer/internal/api"
+	"ShorteNer/internal/db"
+	"ShorteNer/pkg/logger"
 	"log/slog"
 )
 

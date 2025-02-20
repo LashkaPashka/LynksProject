@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"Lynks/shortener/configs"
-	"Lynks/shortener/internal/model"
-	"Lynks/shortener/pkg/logger"
-	"Lynks/shortener/pkg/queue"
+	"ShorteNer/configs"
+	"ShorteNer/internal/model"
+	"ShorteNer/pkg/logger"
+	"ShorteNer/pkg/queue"
 	"context"
 	"log/slog"
 
@@ -30,7 +30,7 @@ func NewLinkRepository() *LinkRepository{
 			slog.String("Msg", err.Error()),
 		) 	}
 	
-	kafka, err := kafka.New([]string{"localhost:29092"}, "test-topic")
+	kafka, err := kafka.New([]string{"kafka"}, "test-topic")
 	if err != nil {
 		logger.Log.Error("Неудачное подключание к kafka")
 	}
